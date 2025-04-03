@@ -1,0 +1,317 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Admin Dashboard - KostTicket{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h4>
+            </div>
+            <div class="card-body">
+                <h5 class="mb-3">Selamat datang, <span class="text-primary">{{ user.get_full_name|default:user.username }}</span>!</h5>
+                <p class="lead">Dari dashboard ini, Anda dapat mengelola semua tiket pelaporan masalah kost.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 text-uppercase font-weight-bold">Total Tiket</h6>
+                        <h2 class="mb-0 display-4">{{ total_tickets }}</h2>
+                    </div>
+                    <div class="icon-circle bg-white text-primary">
+                        <i class="fas fa-ticket-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{% url 'admin_dashboard' %}" class="text-white-50 small stretched-link">Lihat Detail</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-danger text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 text-uppercase font-weight-bold">Tiket Terbuka</h6>
+                        <h2 class="mb-0 display-4">{{ open_tickets }}</h2>
+                    </div>
+                    <div class="icon-circle bg-white text-danger">
+                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{% url 'admin_dashboard' %}?status=open" class="text-white-50 small stretched-link">Lihat Detail</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-warning text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 text-uppercase font-weight-bold">Sedang Diproses</h6>
+                        <h2 class="mb-0 display-4">{{ in_progress_tickets }}</h2>
+                    </div>
+                    <div class="icon-circle bg-white text-warning">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{% url 'admin_dashboard' %}?status=in_progress" class="text-white-50 small stretched-link">Lihat Detail</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50 text-uppercase font-weight-bold">Tiket Selesai</h6>
+                        <h2 class="mb-0 display-4">{{ resolved_tickets }}</h2>
+                    </div>
+                    <div class="icon-circle bg-white text-success">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a href="{% url 'admin_dashboard' %}?status=resolved" class="text-white-50 small stretched-link">Lihat Detail</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    {% if status == 'open' %}
+                        Tiket Terbuka
+                    {% elif status == 'in_progress' %}
+                        Tiket Sedang Diproses
+                    {% elif status == 'resolved' %}
+                        Tiket Selesai
+                    {% else %}
+                        Semua Tiket
+                    {% endif %}
+                </h5>
+                <div class="btn-group">
+                    <a href="{% url 'admin_dashboard' %}" class="btn btn-light btn-sm {% if not status %}active{% endif %}">
+                        <i class="fas fa-list-ul"></i> Semua
+                    </a>
+                    <a href="{% url 'admin_dashboard' %}?status=open" class="btn btn-light btn-sm {% if status == 'open' %}active{% endif %}">
+                        <i class="fas fa-exclamation-circle text-danger"></i> Terbuka
+                    </a>
+                    <a href="{% url 'admin_dashboard' %}?status=in_progress" class="btn btn-light btn-sm {% if status == 'in_progress' %}active{% endif %}">
+                        <i class="fas fa-clock text-warning"></i> Diproses
+                    </a>
+                    <a href="{% url 'admin_dashboard' %}?status=resolved" class="btn btn-light btn-sm {% if status == 'resolved' %}active{% endif %}">
+                        <i class="fas fa-check-circle text-success"></i> Selesai
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">ID</th>
+                                <th>Judul</th>
+                                <th>Dibuat Oleh</th>
+                                <th>Status</th>
+                                <th>Tanggal</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if all_tickets %}
+                                {% for ticket in all_tickets %}
+                                    <tr>
+                                        <td class="ps-3">{{ ticket.id }}</td>
+                                        <td>
+                                            <strong>{{ ticket.title }}</strong>
+                                            <div class="small text-muted">{{ ticket.description|truncatechars:50 }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle bg-primary text-white me-2">
+                                                    {{ ticket.created_by.username|first|upper }}
+                                                </div>
+                                                <span>{{ ticket.created_by.get_full_name|default:ticket.created_by.username }}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if ticket.status == 'open' %}
+                                                <span class="badge bg-danger">Terbuka</span>
+                                            {% elif ticket.status == 'in_progress' %}
+                                                <span class="badge bg-warning">Sedang Diproses</span>
+                                            {% elif ticket.status == 'resolved' %}
+                                                <span class="badge bg-success">Selesai</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div>{{ ticket.created_at|date:"d M Y" }}</div>
+                                            <div class="small text-muted">{{ ticket.created_at|time:"H:i" }}</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye"></i> Lihat
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+                                        <p class="mb-0">Tidak ada tiket yang ditemukan.</p>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Task Queue</h5>
+                {% if pending_tasks %}
+                    <span class="badge bg-warning">{{ pending_tasks|length }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                {% if pending_tasks %}
+                    <div class="list-group list-group-flush">
+                        {% for task in pending_tasks %}
+                            <div class="list-group-item border-0 py-3">
+                                <div class="d-flex">
+                                    <div class="task-icon me-3">
+                                        {% if task.task_type == 'send_notification' %}
+                                            <div class="icon-circle-sm bg-primary text-white">
+                                                <i class="fas fa-bell"></i>
+                                            </div>
+                                        {% elif task.task_type == 'generate_report' %}
+                                            <div class="icon-circle-sm bg-success text-white">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </div>
+                                        {% elif task.task_type == 'send_email' %}
+                                            <div class="icon-circle-sm bg-info text-white">
+                                                <i class="fas fa-envelope"></i>
+                                            </div>
+                                        {% elif task.task_type == 'process_ticket' %}
+                                            <div class="icon-circle-sm bg-warning text-white">
+                                                <i class="fas fa-ticket-alt"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="icon-circle-sm bg-secondary text-white">
+                                                <i class="fas fa-cog"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 fw-bold">{{ task.get_task_type_display }}</h6>
+                                            <small class="text-muted">{{ task.created_at|timesince }} yang lalu</small>
+                                        </div>
+                                        <p class="mb-1 small">Status: <span class="badge {% if task.status == 'pending' %}bg-warning{% elif task.status == 'processing' %}bg-info{% elif task.status == 'completed' %}bg-success{% else %}bg-danger{% endif %}">{{ task.get_status_display }}</span></p>
+                                        {% if task.scheduled_at %}
+                                            <small class="text-muted">Dijadwalkan: {{ task.scheduled_at|date:"d M Y, H:i" }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-check-circle fa-3x text-muted mb-3"></i>
+                        <p class="mb-0">Tidak ada tugas yang menunggu.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Notifikasi Terbaru</h5>
+                {% if unread_notifications %}
+                    <span class="badge bg-danger">{{ unread_notifications|length }}</span>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                {% if unread_notifications %}
+                    <div class="list-group list-group-flush">
+                        {% for notification in unread_notifications %}
+                            <a href="{% url 'ticket_detail' notification.ticket.id %}" class="list-group-item list-group-item-action border-0 py-3">
+                                <div class="d-flex">
+                                    <div class="notification-icon me-3">
+                                        {% if 'dibuat' in notification.message %}
+                                            <div class="icon-circle-sm bg-primary text-white">
+                                                <i class="fas fa-ticket-alt"></i>
+                                            </div>
+                                        {% elif 'status' in notification.message %}
+                                            <div class="icon-circle-sm bg-warning text-white">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </div>
+                                        {% elif 'Komentar' in notification.message %}
+                                            <div class="icon-circle-sm bg-info text-white">
+                                                <i class="fas fa-comment"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="icon-circle-sm bg-secondary text-white">
+                                                <i class="fas fa-bell"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 fw-bold">{{ notification.message }}</h6>
+                                            <small class="text-muted">{{ notification.created_at|timesince }} yang lalu</small>
+                                        </div>
+                                        <p class="mb-1 small text-primary">Tiket: {{ notification.ticket.title }}</p>
+                                        <small class="text-muted">Klik untuk melihat detail</small>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                        <p class="mb-0">Tidak ada notifikasi baru.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="notification-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 5"></div>
+{% endblock %}

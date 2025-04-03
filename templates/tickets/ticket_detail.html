@@ -1,0 +1,144 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ ticket.title }} - KostTicket{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Detail Tiket</h4>
+                <a href="{% url 'ticket_list' %}" class="btn btn-light">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Daftar
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <h3>{{ ticket.title }}</h3>
+                        <p class="text-muted">
+                            Dibuat oleh {{ ticket.created_by.get_full_name|default:ticket.created_by.username }} 
+                            pada {{ ticket.created_at|date:"d M Y, H:i" }}
+                        </p>
+                        <div class="mb-3">
+                            {% if ticket.status == 'open' %}
+                                <span class="badge bg-danger">Terbuka</span>
+                            {% elif ticket.status == 'in_progress' %}
+                                <span class="badge bg-warning">Sedang Diproses</span>
+                            {% elif ticket.status == 'resolved' %}
+                                <span class="badge bg-success">Selesai</span>
+                            {% endif %}
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <p>{{ ticket.description|linebreaks }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if user.is_admin or user.is_staff %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0">Ubah Status</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="{% url 'ticket_update_status' ticket.id %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="{{ status_form.status.id_for_label }}" class="form-label">Status</label>
+                                        {{ status_form.status }}
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">Perbarui Status</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <hr>
+                
+                <h5 class="mb-3">Komentar ({{ comments.count }})</h5>
+                
+                {% if comments %}
+                    <div class="comments-section mb-4">
+                        {% for comment in comments %}
+                            <div class="card mb-3">
+                                <div class="card-header {% if comment.author.is_admin or comment.author.is_staff %}bg-info{% else %}bg-light{% endif %}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+                                            {% if comment.author.is_admin or comment.author.is_staff %}
+                                                <span class="badge bg-primary ms-2">Admin</span>
+                                            {% endif %}
+                                        </div>
+                                        <small>{{ comment.created_at|date:"d M Y, H:i" }}</small>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-0">{{ comment.content|linebreaks }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-4">Belum ada komentar.</p>
+                {% endif %}
+                
+                {% if comment_form %}
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Tambahkan Komentar</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    {{ comment_form.content }}
+                                    {% if comment_form.content.errors %}
+                                        <div class="text-danger">
+                                            {{ comment_form.content.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">Kirim Komentar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Tiket ini sudah selesai. Tidak dapat menambahkan komentar baru.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="notification-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 5"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add ticket-specific refresh logic
+    document.addEventListener('DOMContentLoaded', function() {
+        // Listen for messages from the WebSocket
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'websocket_message') {
+                const data = event.data.payload;
+                // Refresh the page if this is about the current ticket
+                if (data.ticket_id === "{{ ticket.id }}") {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

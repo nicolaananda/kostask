@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Status Tiket Diperbarui</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4e73df;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4e73df;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .status-change {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #4e73df;
+            margin: 20px 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            color: white;
+            font-weight: bold;
+        }
+        .status-open {
+            background-color: #e74a3b;
+        }
+        .status-in-progress {
+            background-color: #f6c23e;
+        }
+        .status-resolved {
+            background-color: #1cc88a;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Status Tiket Diperbarui</h2>
+    </div>
+    <div class="content">
+        <p>Halo,</p>
+        <p>Status tiket <strong>{{ ticket.title }}</strong> telah diperbarui.</p>
+        
+        <div class="status-change">
+            <p>Status tiket telah berubah dari:</p>
+            <p>
+                <span class="status status-{% if old_status == 'Terbuka' %}open{% elif old_status == 'Sedang Diproses' %}in-progress{% else %}resolved{% endif %}">
+                    {{ old_status }}
+                </span>
+                &nbsp;&rarr;&nbsp;
+                <span class="status status-{% if new_status == 'Terbuka' %}open{% elif new_status == 'Sedang Diproses' %}in-progress{% else %}resolved{% endif %}">
+                    {{ new_status }}
+                </span>
+            </p>
+        </div>
+        
+        {% if new_status == 'Selesai' %}
+        <p><strong>Tiket Anda telah diselesaikan.</strong> Jika Anda masih memiliki masalah, silakan buat tiket baru.</p>
+        {% else %}
+        <p>Tim kami sedang menangani tiket Anda. Kami akan memberikan pembaruan lebih lanjut secepatnya.</p>
+        {% endif %}
+        
+        <p>Silakan klik tombol di bawah untuk melihat tiket:</p>
+        <a href="http://127.0.0.1:8000/tickets/{{ ticket.id }}/" class="button">Lihat Tiket</a>
+        
+        <p>Terima kasih,<br>Tim KostTicket</p>
+    </div>
+    <div class="footer">
+        <p>Email ini dikirim secara otomatis, mohon tidak membalas email ini.</p>
+    </div>
+</body>
+</html>
